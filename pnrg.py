@@ -30,20 +30,41 @@ def naive(seed, n):
         n -= 1
 
 #
-# - same as a fibonacci LFSR with taps set at bits 16, 14, 13 and 11
-# - we should have 2**16-1 distinct outputs before it cycles (maximum sequence over 16 bits)
-# - changing to polynomial will produce distinct values at first and then fall into a cycle
+# - same as a fibonacci LFSR
+# - each polynomial will produce distinct values at first and then fall into a 2**N - 1 cycle
 #
 
 
-def LFSR(seed, n):
-    seed &= 0xFFFF
+def LFSR(seed, coef, n):
+    seed &= 0xFFFFFFFF
     state = seed
     while n:
-        bit = 1 & ((state >> 0) ^ (state >> 2) ^ (state >> 3) ^ (state >> 5))
-        state = (state >> 1) | (bit << 15)
+        bit = 0
+        for c in coef:
+            bit ^= (state >> (32 - c))
+
+        bit &= 1
+        state = (state >> 1) | (bit << 31)
         yield state % 100
         n -= 1
+
+#
+# - LSFR with taps set at bits 6 & 5
+# - we should have 2**6 - 1 distinct outputs before it cycles
+#
+
+
+def LFSR6(seed, n):
+    return LFSR(seed, [6, 5], n)
+
+#
+# - LSFR with taps set at bits 16, 15, 13 & 4
+# - we should have 2**16 - 1 distinct outputs before it cycles
+#
+
+
+def LFSR16(seed, n):
+    return LFSR(seed, [16, 15, 13, 4], n)
 
 #
 # - simple xorshift implementation taken from wikipedia with a max. period of 2**128 -1
@@ -69,11 +90,13 @@ if __name__ == '__main__':
     def frequencies(seq):
 
         digits = {_: 0 for _ in range(10)}
+        total = 0
         for n in seq:
             while n:
                 digits[n % 10] += 1
+                total += 1
                 n /= 10
-        return digits
+        return {key: '%.1f %%' % (100.0 * value / total) for key, value in digits.items()}
 
     #
     # - use 65K samples
@@ -81,7 +104,7 @@ if __name__ == '__main__':
     S = 2**16
 
     #
-    # - run the default PNRG implemenation
+    # - run the default PNRG implementation
     #
     random.seed()
     print frequencies([random.randrange(100) for _ in range(S)])
@@ -90,5 +113,6 @@ if __name__ == '__main__':
     # - now let's compare with our implementations
     #
     print frequencies(list(naive(urandom(), S)))
-    print frequencies(list(LFSR(urandom(), S)))
+    print frequencies(list(LFSR6(urandom(), S)))
+    print frequencies(list(LFSR16(urandom(), S)))
     print frequencies(list(xorshift(urandom(), S)))
