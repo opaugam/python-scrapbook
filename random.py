@@ -18,25 +18,26 @@ def urandom():
 #
 def naive(seed, n):
     state = 1 + seed
-    for i in xrange(n):
+    while n:
         state = (7 * state) % 109973007
         yield state % 100
+        n -= 1
 
 #
 # - simple fibonacci LFSR with taps set at bits 16, 14, 13 and 11
-# - we should have 2**16-1 outputs before it cycles (maximum sequence)
+# - we should have 2**16-1 distinct outputs before it cycles (maximum sequence over 16 bits)
 #
-def LFSR(seed):
+def LFSR(seed, n):
     seed &= 0xFFFF
-    cur = seed
-    while 1:
-        bit = 1 & ((cur >> 0) ^ (cur >> 2) ^ (cur >> 3) ^ (cur >> 5))
-        cur = (bit << 15) | (cur >> 1)
-        yield cur % 100
-        if cur == seed: break
-
+    state = seed
+    while n:
+        bit = 1 & ((state >> 0) ^ (state >> 2) ^ (state >> 3) ^ (state >> 5))
+        state = (state >> 1) | (bit << 15)
+        yield state % 100
+        n -= 1
+    
 if __name__ == '__main__':
 
     print urandom()
     print [n for n in naive(urandom(), 100)]
-    print [n for n in LFSR(urandom())]
+    print [n for n in LFSR(urandom(), 100)]
