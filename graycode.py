@@ -1,5 +1,10 @@
 from copy import copy
 
+#
+# - very simple recursive gray code loop
+#
+
+
 def generate(n):
     assert n, 'n must be strictly positive'
     if n == 1:
@@ -7,4 +12,4 @@ def generate(n):
 
     prv = generate(n - 1)
     tmp = copy(prv)
-    return prv + [(1<<(n-1)) | code for code in tmp[::-1]]
+    return prv + [(1 << (n - 1)) | code for code in tmp[::-1]]

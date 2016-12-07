@@ -10,6 +10,8 @@ import random
 #
 # - /dev/urandom to 4-bytes integer
 #
+
+
 def urandom():
     with open("/dev/urandom", 'rb') as f:
         raw = bytearray(f.read(4))
@@ -18,6 +20,8 @@ def urandom():
 #
 # - trivial modular generator producing values in [0, 100]
 #
+
+
 def naive(seed, n):
     state = 1 + seed
     while n:
@@ -30,6 +34,8 @@ def naive(seed, n):
 # - we should have 2**16-1 distinct outputs before it cycles (maximum sequence over 16 bits)
 # - changing to polynomial will produce distinct values at first and then fall into a cycle
 #
+
+
 def LFSR(seed, n):
     seed &= 0xFFFF
     state = seed
@@ -42,6 +48,8 @@ def LFSR(seed, n):
 #
 # - simple xorshift implementation taken from wikipedia with a max. period of 2**128 -1
 #
+
+
 def xorshift(seed, n):
     x = seed
     y = 2
@@ -51,7 +59,7 @@ def xorshift(seed, n):
     while n:
         tmp = 0xFFFFFF & (x ^ (x << 11))
         tmp ^= (tmp >> 8)
-        (x,y,z) = (y, z, w)
+        (x, y, z) = (y, z, w)
         w = tmp ^ (w >> 19) ^ w
         yield w % 100
         n -= 1
@@ -59,11 +67,11 @@ def xorshift(seed, n):
 if __name__ == '__main__':
 
     def frequencies(seq):
-        
+
         digits = {_: 0 for _ in range(10)}
         for n in seq:
             while n:
-                digits[n%10] += 1
+                digits[n % 10] += 1
                 n /= 10
         return digits
 
@@ -77,7 +85,7 @@ if __name__ == '__main__':
     #
     random.seed()
     print frequencies([random.randrange(100) for _ in range(S)])
-    
+
     #
     # - now let's compare with our implementations
     #
