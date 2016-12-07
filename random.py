@@ -24,7 +24,7 @@ def naive(seed, n):
         n -= 1
 
 #
-# - simple fibonacci LFSR with taps set at bits 16, 14, 13 and 11
+# - same as a fibonacci LFSR with taps set at bits 16, 14, 13 and 11
 # - we should have 2**16-1 distinct outputs before it cycles (maximum sequence over 16 bits)
 #
 def LFSR(seed, n):
