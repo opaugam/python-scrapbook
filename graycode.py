@@ -19,6 +19,9 @@ def reflected(n):
 
 def shifted(n):
 
+    #
+    # - took me a while to spot the fact each bit is flipped iif its left-side neighbour is on
+    #
     return [i ^ (i >> 1) for i in range(2 ** n)]
 
 
